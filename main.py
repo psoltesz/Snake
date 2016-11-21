@@ -13,19 +13,19 @@ def starting_coords():
 
 def createfield():
     field = []
-    for l in range(10):
+    for l in range(30):
         field.append([])
-        for c in range(10):
+        for c in range(30):
             field[l].append(0)
     return field
 
 
 def drawfield(field):
     for line in range(len(field)):
-        mainscreen.addstr("\n")
+        pad.addstr("\n")
         for column in range(len(field[line])):
-            mainscreen.addstr(str(field[line][column]))
-    mainscreen.refresh()
+            pad.addstr(str(field[line][column]))
+            pad.noutrefresh()
 
 
 def snake_placement(field, l, c):
@@ -52,15 +52,19 @@ def main(mainscreen):
     snake_placement(field, current_position[0], current_position[1])
 
     starttime = time.time()
-    while True:
-        mainscreen.clear()
-        current_position = movement(field, current_position[0], current_position[1])
-        drawfield(field)
-        time.sleep(0.5)
-        mainscreen.refresh()
 
+    try:
+        while True:
+            pad.clear()
+            current_position = movement(field, current_position[0], current_position[1])
+            drawfield(field)
+            time.sleep(0.5)
+            pad.refresh()
+    except IndexError:
+        curses.endwin()
     mainscreen.refresh()
     curses.endwin()
 
 mainscreen = curses.initscr()
+pad = curses.newwin(32, 32, 6, 54)
 wrapper(main)
