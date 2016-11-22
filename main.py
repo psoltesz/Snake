@@ -37,17 +37,12 @@ def snake_placement(field, l, c, over=False):
         field[l - i][c] = snakelength[i]
 
 
-'''def snake_placement_hori(field, l, c, ori):
-    snakelength = [7, 6, 5, 4, 3, 2, 1]
-    for i in range(len(snakelength)):
-        field[l][c - i] = snakelength[i]'''
-
 
 def movement_vert(field, l, c, orient):
     if l == 29:
-        l = 0
+        l = -1
         snake_placement(field, l, c, True)
-    elif l == 0:
+    elif l == -1:
         l = 29
         snake_placement(field, l, c, True)
 
@@ -61,11 +56,12 @@ def movement_vert(field, l, c, orient):
 
 def movement_hori(field, l, c, orient):
     if c == 29:
-        c = 0
+        c = -1
         snake_placement(field, l, c, True)
-    elif c == 0:
+    elif c == -1:
         c = 29
         snake_placement(field, l, c, True)
+
     field[l][c + orient] = field[l][c] + 1  # places the head at its proper place
 
     for line in range(len(field)):
@@ -92,15 +88,13 @@ def main(mainscreen):
     field = createfield()
 
     current_position = starting_coords()
-    snake_placement(field, current_position[0], current_position[1], 1)
+    snake_placement(field, current_position[0], current_position[1])
 
     starttime = time.time()
 
     curses.cbreak()
     gamewindow.keypad(1)
     key = ""
-
-    current_position = movement_vert(field, current_position[0], current_position[1], 1)
 
     try:
         while True:
