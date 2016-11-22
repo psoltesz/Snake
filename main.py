@@ -28,25 +28,22 @@ def drawfield(field):
             gamewindow.noutrefresh()
 
 
-def snake_placement_vert(field, l, c, ori):
+def snake_placement(field, l, c, over=False):
     snakelength = [7, 6, 5, 4, 3, 2, 1]
+    if over == True:
+        field[l][c] = snakelength[0]
+        return
     for i in range(len(snakelength)):
-        field[l - (ori * i)][c] = snakelength[i]
-
-
-def snake_placement_hori(field, l, c, ori):
-    snakelength = [7, 6, 5, 4, 3, 2, 1]
-    for i in range(len(snakelength)):
-        field[l][c - (ori * i)] = snakelength[i]
+        field[l - i][c] = snakelength[i]
 
 
 def movement_vert(field, l, c, orient):
     if l == 29:
-        l = 0
-        snake_placement_vert(field, l, c, 1)
-    elif l == 0:
+        l = -1
+        snake_placement(field, l, c, True)
+    elif l == -1:
         l = 29
-        snake_placement_vert(field, l, c, -1)
+        snake_placement(field, l, c, True)
 
     field[l + orient][c] = field[l][c] + 1  # places the head at its proper place
     for line in range(len(field)):
@@ -57,6 +54,13 @@ def movement_vert(field, l, c, orient):
 
 
 def movement_hori(field, l, c, orient):
+    if c == 29:
+        c = -1
+        snake_placement(field, l, c, True)
+    elif c == -1:
+        c = 29
+        snake_placement(field, l, c, True)
+
     field[l][c + orient] = field[l][c] + 1  # places the head at its proper place
 
     for line in range(len(field)):
@@ -83,15 +87,13 @@ def main(mainscreen):
     field = createfield()
 
     current_position = starting_coords()
-    snake_placement_vert(field, current_position[0], current_position[1], 1)
+    snake_placement(field, current_position[0], current_position[1])
 
     starttime = time.time()
 
     curses.cbreak()
     gamewindow.keypad(1)
     key = ""
-
-    current_position = movement_vert(field, current_position[0], current_position[1], 1)
 
     try:
         while True:
