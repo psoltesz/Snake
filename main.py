@@ -3,6 +3,7 @@ from curses import wrapper
 import random
 import time
 import os
+import unicodedata
 
 
 def starting_coords():
@@ -24,12 +25,17 @@ def drawfield(field):
     for line in range(len(field)):
         gamewindow.addstr("\n")
         for column in range(len(field[line])):
-            gamewindow.addstr(str(field[line][column]))
+            if field[line][column] == 0:
+                gamewindow.addstr(" ")
+            elif field[line][column] < 10:
+                gamewindow.addstr("■")
+            else:
+                gamewindow.addstr("O")
             gamewindow.noutrefresh()
 
 
 def snake_placement(field, l, c, over=False):
-    snakelength = [7, 6, 5, 4, 3, 2, 1]
+    snakelength = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     if over:
         field[l][c] = snakelength[0]
         return
@@ -124,5 +130,5 @@ def main(mainscreen):
     curses.endwin()
 
 mainscreen = curses.initscr()
-gamewindow = curses.newwin(32, 32, 6, 54)
+gamewindow = curses.newwin(70, 70, 6, 54)
 wrapper(main)
