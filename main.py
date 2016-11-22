@@ -25,7 +25,7 @@ def drawfield(field):
         gamewindow.addstr("\n")
         for column in range(len(field[line])):
             if field[line][column] == 0:
-                gamewindow.addstr("{0:^{1}}".format(" ", 2))
+                gamewindow.addstr("{0:^{1}}".format("0", 2))
             elif field[line][column] < 10:
                 gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(3))
             else:
@@ -155,7 +155,7 @@ def main(mainscreen):
         menu.clear()
         menu.refresh()
         while True:
-            gamewindow.border()
+            # gamewindow.border()
             curses.cbreak()
             gamewindow.keypad(1)
             key = ""
@@ -187,5 +187,5 @@ def main(mainscreen):
 
 mainscreen = curses.initscr()
 menu = curses.newwin(50, 70, 6, 30)
-gamewindow = curses.newwin(31, 61, 6, 40)
+gamewindow = curses.newwin(32, 61, 6, 40)
 wrapper(main)
