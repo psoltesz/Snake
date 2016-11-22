@@ -22,10 +22,10 @@ def createfield():
 
 def drawfield(field):
     for line in range(len(field)):
-        pad.addstr("\n")
+        gamewindow.addstr("\n")
         for column in range(len(field[line])):
-            pad.addstr(str(field[line][column]))
-            pad.noutrefresh()
+            gamewindow.addstr(str(field[line][column]))
+            gamewindow.noutrefresh()
 
 
 def snake_placement(field, l, c):
@@ -34,17 +34,41 @@ def snake_placement(field, l, c):
         field[l - i][c] = snakelength[i]
 
 
-def movement(field, l, c):
-    field[l + 1][c] = field[l][c] + 1  # places the head at its proper place
+def movement_vert(field, l, c, orient):
+    field[l + orient][c] = field[l][c] + 1  # places the head at its proper place
 
     for line in range(len(field)):
         for column in range(len(field[line])):
             if field[line][column] != 0:
                 field[line][column] -= 1
-    return [l + 1, c]
+    return [l + orient, c]
+
+
+def movement_hori(field, l, c, orient):
+    field[l][c + orient] = field[l][c] + 1  # places the head at its proper place
+
+    for line in range(len(field)):
+        for column in range(len(field[line])):
+            if field[line][column] != 0:
+                field[line][column] -= 1
+    return [l, c + orient]
+
+
+def automove(field, current_position):
+    global current_orient
+    if current_orient == "up":
+        current_position = movement_vert(field, current_position[0], current_position[1], -1)
+    elif current_orient == "down":
+        current_position = movement_vert(field, current_position[0], current_position[1], 1)
+    elif current_orient == "left":
+        current_position = movement_hori(field, current_position[0], current_position[1], -1)
+    elif current_orient == "right":
+        current_position = movement_hori(field, current_position[0], current_position[1], 1)
+    return current_position
 
 
 def main(mainscreen):
+    global current_orient
 
     field = createfield()
 
@@ -53,18 +77,41 @@ def main(mainscreen):
 
     starttime = time.time()
 
+    curses.cbreak()
+    gamewindow.keypad(1)
+    key = ""
+
+    current_position = movement_vert(field, current_position[0], current_position[1], 1)
+
     try:
         while True:
-            pad.clear()
-            current_position = movement(field, current_position[0], current_position[1])
+            key = gamewindow.getch()
+            gamewindow.nodelay(1)
+            if key == curses.KEY_UP:
+                current_position = movement_vert(field, current_position[0], current_position[1], -1)
+                current_orient = "up"
+            elif key == curses.KEY_DOWN:
+                current_position = movement_vert(field, current_position[0], current_position[1], 1)
+                current_orient = "down"
+            elif key == curses.KEY_LEFT:
+                current_position = movement_hori(field, current_position[0], current_position[1], -1)
+                current_orient = "left"
+            elif key == curses.KEY_RIGHT:
+                current_position = movement_hori(field, current_position[0], current_position[1], 1)
+                current_orient = "right"
+            else:
+                current_position = automove(field, current_position)
+
+            gamewindow.clear()
             drawfield(field)
-            time.sleep(0.5)
-            pad.refresh()
+            time.sleep(0.1)
+            gamewindow.refresh()
     except IndexError:
         curses.endwin()
     mainscreen.refresh()
     curses.endwin()
 
 mainscreen = curses.initscr()
-pad = curses.newwin(32, 32, 6, 54)
+gamewindow = curses.newwin(32, 32, 6, 54)
+current_orient = "down"
 wrapper(main)
