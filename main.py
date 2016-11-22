@@ -30,7 +30,7 @@ def drawfield(field):
 
 def snake_placement(field, l, c, over=False):
     snakelength = [7, 6, 5, 4, 3, 2, 1]
-    if over == True:
+    if over:
         field[l][c] = snakelength[0]
         return
     for i in range(len(snakelength)):
