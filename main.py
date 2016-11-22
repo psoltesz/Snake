@@ -1,14 +1,13 @@
 import curses
-from curses import wrapper
+from curses import *
 import random
 import time
 import os
-import unicodedata
 
 
 def starting_coords():
-    l = random.randrange(3, 8)
-    c = random.randrange(1, 10)
+    l = random.randrange(3, 28)
+    c = random.randrange(1, 30)
     return [l, c]
 
 
@@ -28,11 +27,17 @@ def drawfield(field):
             if field[line][column] == 0:
                 gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] < 10:
-                # gamewindow.addstr("■")
-                gamewindow.addstr("{0:^{1}}".format("■", 2))
+                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(3))
             else:
                 gamewindow.addstr("{0:^{1}}".format("■", 2))
             gamewindow.noutrefresh()
+
+
+def drawmenu(snake_list, menu):
+    for line in range(len(snake_list)):
+        menu.addstr("\n")
+        for i in range(len(snake_list[line])):
+            menu.addstr(str(snake_list[line][i]), color_pair(2) + A_BOLD)
 
 
 def snake_placement(field, l, c, over=False):
@@ -89,7 +94,54 @@ def automove(field, current_position, current_orient):
     return current_position
 
 
+def menu_things(snake_list, menu):
+    curses.cbreak()
+    menu.keypad(1)
+    entering_key = ""
+
+    drawmenu(snake_list, menu)
+    entering_key = menu.getch()
+    if entering_key == curses.KEY_ENTER:
+        menu = curses.endwin()
+
+
 def main(mainscreen):
+    start_color()
+    use_default_colors()
+
+    init_pair(1, COLOR_RED, -1)
+    init_pair(2, COLOR_GREEN, -1)
+
+    snake_list = ['''                                                  .o@*hu''',
+                  '''                          ..      .........   .u*"    ^Rc''',
+                  '''                        oP""*Lo*#"""""""""""7d  .d*N.   $''',
+                  '''                      S  u@""           .u*"  o*"  #   ?b''',
+                  '''                      N   "                .d"  .C@      ?b.''',
+                  '''                     A                    @*@me@#         '"Nu''',
+                  '''                    K                                        .#b''',
+                  '''                  .E                                           $r''',
+                  '''                .X"                                  $L        $''',
+                  '''              .S"                                   8"R      dP''',
+                  '''           .N#"                                  .dP d"   .d#''',
+                  '''          xA              .e                 .ud#"  dE.o@"(''',
+                  '''          K             s*"              .u@*""     '""\dP"''',
+                  '''          ?E  ..                    ..o@""        .$  uP''',
+                  '''           #c:$"*u.             .u@*""$          uR .@"''',
+                  '''            ?L$. '"""***Nc    x@""   @"         d" JP''',
+                  '''             ^#$         #L  .$     8"         d" d"''',
+                  '''               '          "b.'$    @"         $" 8"''',
+                  '''                            "*@   $"         $  @''',
+                  '''                           @    $"         d" 8''',
+                  '''                           $$u.u$"         dF dF''',
+                  '''                           $ """   ^      dP xR''',
+                  '''                           $      dFNu...@"  $''',
+                  '''                           "N..   ?B ^"""   :R''',
+                  '''                             """"* RL       d>''',
+                  '''                                    "$u.   .$''',
+                  '''                                      ^"*bo@"''',
+                  ''' \n ''',
+                  '''                              Press ENTER to start!''']
+
     current_orient = "down"
     field = createfield()
 
@@ -98,12 +150,15 @@ def main(mainscreen):
 
     starttime = time.time()
 
-    curses.cbreak()
-    gamewindow.keypad(1)
-    key = ""
-
     try:
+        menu_things(snake_list, menu)
+        menu.clear()
+        menu.refresh()
         while True:
+            gamewindow.border()
+            curses.cbreak()
+            gamewindow.keypad(1)
+            key = ""
             gamewindow.nodelay(1)
             key = gamewindow.getch()
             if key == curses.KEY_UP:
@@ -131,5 +186,6 @@ def main(mainscreen):
     curses.endwin()
 
 mainscreen = curses.initscr()
-gamewindow = curses.newwin(70, 70, 6, 54)
+menu = curses.newwin(50, 70, 6, 30)
+gamewindow = curses.newwin(31, 61, 6, 40)
 wrapper(main)
