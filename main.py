@@ -26,11 +26,12 @@ def drawfield(field):
         gamewindow.addstr("\n")
         for column in range(len(field[line])):
             if field[line][column] == 0:
-                gamewindow.addstr(" ")
+                gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] < 10:
-                gamewindow.addstr("■")
+                # gamewindow.addstr("■")
+                gamewindow.addstr("{0:^{1}}".format("■", 2))
             else:
-                gamewindow.addstr("O")
+                gamewindow.addstr("{0:^{1}}".format("■", 2))
             gamewindow.noutrefresh()
 
 
