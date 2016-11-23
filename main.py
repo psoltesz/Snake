@@ -25,13 +25,13 @@ def drawfield(field):
         gamewindow.addstr("\n")
         for column in range(len(field[line])):
             if field[line][column] == 0:
-                gamewindow.addstr("{0:^{1}}".format("0", 2))
+                gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] < 10:
-                #gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(3))
-                gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
+                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(3))
+                #gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
             else:
-                #gamewindow.addstr("{0:^{1}}".format("■", 2))
-                gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
+                gamewindow.addstr("{0:^{1}}".format("■", 2))
+                #gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
             gamewindow.noutrefresh()
 
 
@@ -154,35 +154,46 @@ def main(mainscreen):
     starttime = time.time()
 
     try:
+        curses.curs_set(0)
         menu_things(snake_list, menu)
         menu.clear()
         menu.refresh()
         borderwindow.border()
         borderwindow.refresh()
+
         while True:
             # gamewindow.border()
             curses.cbreak()
             gamewindow.keypad(1)
-            key = ""
             gamewindow.nodelay(1)
+            key = -1
+            correct_key = ""
+
+            time.sleep(0.1)
             key = gamewindow.getch()
-            if key == curses.KEY_UP:
+            correct_key = key
+            while True:
+                key = gamewindow.getch()
+                if key == -1:
+                    break
+                correct_key = key
+
+            if correct_key == curses.KEY_UP:
                 current_position = movement_vert(field, current_position[0], current_position[1], -1)
                 current_orientation = "up"
-            elif key == curses.KEY_DOWN:
+            elif correct_key == curses.KEY_DOWN:
                 current_position = movement_vert(field, current_position[0], current_position[1], 1)
                 current_orientation = "down"
-            elif key == curses.KEY_LEFT:
+            elif correct_key == curses.KEY_LEFT:
                 current_position = movement_hori(field, current_position[0], current_position[1], -1)
                 current_orientation = "left"
-            elif key == curses.KEY_RIGHT:
+            elif correct_key == curses.KEY_RIGHT:
                 current_position = movement_hori(field, current_position[0], current_position[1], 1)
                 current_orientation = "right"
             else:
                 current_position = automove(field, current_position, current_orientation)
             gamewindow.clear()
             drawfield(field)
-            time.sleep(0.1)
             gamewindow.refresh()
     except IndexError:
         bug = field[l][c]
