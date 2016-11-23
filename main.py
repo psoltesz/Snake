@@ -28,10 +28,10 @@ def drawfield(field):
                 gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] < 10:
                 gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(3))
-                #gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
+                # gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
             else:
                 gamewindow.addstr("{0:^{1}}".format("■", 2))
-                #gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
+                # gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
             gamewindow.noutrefresh()
 
 
@@ -51,11 +51,11 @@ def snake_placement(field, l, c, over=False):
         field[l - i][c] = snakelength[i]
 
 
-def movement_vert(field, l, c, direction):
-    if l == 29:
+def movement_vert(field, l, c, direction, current_orientation):
+    if l == 29 and current_orientation != "left" and current_orientation != "right":
         l = -1
         l = snake_placement(field, l + direction, c, True)[0]
-    elif l == 0:
+    elif l == 0 and current_orientation != "left" and current_orientation != "right":
         l = 29
         l = snake_placement(field, l, c, True)[0]
 
@@ -68,11 +68,11 @@ def movement_vert(field, l, c, direction):
     return [l + direction, c]
 
 
-def movement_hori(field, l, c, direction):
-    if c == 29:
+def movement_hori(field, l, c, direction, current_orientation):
+    if c == 29 and current_orientation != "up" and current_orientation != "down":
         c = -1
         c = snake_placement(field, l, c + direction, True)[1]
-    elif c == 0:
+    elif c == 0 and current_orientation != "up" and current_orientation != "down":
         c = 29
         c = snake_placement(field, l, c, True)[1]
 
@@ -87,13 +87,13 @@ def movement_hori(field, l, c, direction):
 
 def automove(field, current_position, current_orientation):
     if current_orientation == "up":
-        current_position = movement_vert(field, current_position[0], current_position[1], -1)
+        current_position = movement_vert(field, current_position[0], current_position[1], -1, current_orientation)
     elif current_orientation == "down":
-        current_position = movement_vert(field, current_position[0], current_position[1], 1)
+        current_position = movement_vert(field, current_position[0], current_position[1], 1, current_orientation)
     elif current_orientation == "left":
-        current_position = movement_hori(field, current_position[0], current_position[1], -1)
+        current_position = movement_hori(field, current_position[0], current_position[1], -1, current_orientation)
     elif current_orientation == "right":
-        current_position = movement_hori(field, current_position[0], current_position[1], 1)
+        current_position = movement_hori(field, current_position[0], current_position[1], 1, current_orientation)
     return current_position
 
 
@@ -179,16 +179,20 @@ def main(mainscreen):
                 correct_key = key
 
             if correct_key == curses.KEY_UP:
-                current_position = movement_vert(field, current_position[0], current_position[1], -1)
+                current_position = movement_vert(field, current_position[0], current_position[
+                                                 1], -1, current_orientation)
                 current_orientation = "up"
             elif correct_key == curses.KEY_DOWN:
-                current_position = movement_vert(field, current_position[0], current_position[1], 1)
+                current_position = movement_vert(field, current_position[0], current_position[
+                                                 1], 1, current_orientation)
                 current_orientation = "down"
             elif correct_key == curses.KEY_LEFT:
-                current_position = movement_hori(field, current_position[0], current_position[1], -1)
+                current_position = movement_hori(field, current_position[0], current_position[
+                                                 1], -1, current_orientation)
                 current_orientation = "left"
             elif correct_key == curses.KEY_RIGHT:
-                current_position = movement_hori(field, current_position[0], current_position[1], 1)
+                current_position = movement_hori(field, current_position[0], current_position[
+                                                 1], 1, current_orientation)
                 current_orientation = "right"
             else:
                 current_position = automove(field, current_position, current_orientation)
@@ -196,11 +200,9 @@ def main(mainscreen):
             drawfield(field)
             gamewindow.refresh()
     except IndexError:
-        bug = field[l][c]
-        a = l
-        b = c
         curses.endwin()
-        print(bug, l, c)
+        print(current_orientation, current_position)
+        raise
     mainscreen.refresh()
     curses.endwin()
 
