@@ -49,6 +49,15 @@ def snake_placement(field, l, c, over=False):
         return [l, c]
     for i in range(len(snakelength)):
         field[l - i][c] = snakelength[i]
+    
+
+def slither(field):
+    for line in range(len(field)):
+        for column in range(len(field[line])):
+            if field[line][column] != 0:
+                field[line][column] -= 1
+    return field
+
 
 
 def movement_vert(field, l, c, direction, current_orientation):
@@ -60,12 +69,7 @@ def movement_vert(field, l, c, direction, current_orientation):
         l = snake_placement(field, l, c, True)[0]
 
     field[l + direction][c] = field[l][c] + 1  # places the head at its proper place
-
-    for line in range(len(field)):
-        for column in range(len(field[line])):
-            if field[line][column] != 0:
-                field[line][column] -= 1
-
+    field = slither(field)
     return [l + direction, c]
 
 
@@ -78,11 +82,7 @@ def movement_hori(field, l, c, direction, current_orientation):
         c = snake_placement(field, l, c, True)[1]
 
     field[l][c + direction] = field[l][c] + 1  # places the head at its proper place
-
-    for line in range(len(field)):
-        for column in range(len(field[line])):
-            if field[line][column] != 0:
-                field[line][column] -= 1
+    field = slither(field)
     return [l, c + direction]
 
 
