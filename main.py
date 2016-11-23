@@ -60,6 +60,7 @@ def movement_vert(field, l, c, direction, current_orientation):
         l = snake_placement(field, l, c, True)[0]
 
     field[l + direction][c] = field[l][c] + 1  # places the head at its proper place
+
     for line in range(len(field)):
         for column in range(len(field[line])):
             if field[line][column] != 0:
