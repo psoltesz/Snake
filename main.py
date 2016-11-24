@@ -157,7 +157,7 @@ def main(mainscreen):
     start_color()
     use_default_colors()
 
-    init_pair(1, COLOR_RED, -1)
+    init_pair(1, COLOR_RED, COLOR_RED)
     init_pair(2, COLOR_GREEN, -1)
 
     snake_list = ['''                                                  .o@*hu''',
@@ -251,5 +251,5 @@ def main(mainscreen):
 
 mainscreen = curses.initscr()
 menu = curses.newwin(50, 70, 6, 30)
-gamewindow = curses.newwin(32, 61, 6, 40)
+gamewindow = curses.newwin(33, 61, 6, 40)
 wrapper(main)
