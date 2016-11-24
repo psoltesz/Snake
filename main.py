@@ -29,6 +29,8 @@ def drawfield(field):
             elif field[line][column] < 10:
                 gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(3))
                 # gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
+            elif field[line][column] == "tb" or field[line][column] == "lb" or field[line][column] == "bb" or field[line][column] == "rb":
+                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(1))
             else:
                 gamewindow.addstr("{0:^{1}}".format("■", 2))
                 # gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
@@ -46,7 +48,7 @@ def snake_placement(field, l, c):
     snakelength = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     for i in range(len(snakelength)):
         field[l - i][c] = snakelength[i]
-    
+
 
 def slither(field):
     for line in range(len(field)):
@@ -72,6 +74,7 @@ def wall_check_vert(l, current_orientation, correct_key):
         return l
     return l
 
+
 def wall_check_hori(c, current_orientation, correct_key):
     if current_orientation == "up" or current_orientation == "down":
         if c == 0 and correct_key == curses.KEY_LEFT:
@@ -85,7 +88,7 @@ def wall_check_hori(c, current_orientation, correct_key):
         return c
     elif current_orientation == "left" and c == 0:
         c = 29
-        return c 
+        return c
     return c
 
 
@@ -109,13 +112,17 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
 
 def automove(field, current_position, current_orientation, correct_key):
     if current_orientation == "up":
-        current_position = movement_vert(field, current_position[0], current_position[1], -1, current_orientation, correct_key)
+        current_position = movement_vert(field, current_position[0], current_position[
+                                         1], -1, current_orientation, correct_key)
     elif current_orientation == "down":
-        current_position = movement_vert(field, current_position[0], current_position[1], 1, current_orientation, correct_key)
+        current_position = movement_vert(field, current_position[0], current_position[
+                                         1], 1, current_orientation, correct_key)
     elif current_orientation == "left":
-        current_position = movement_hori(field, current_position[0], current_position[1], -1, current_orientation, correct_key)
+        current_position = movement_hori(field, current_position[0], current_position[
+                                         1], -1, current_orientation, correct_key)
     elif current_orientation == "right":
-        current_position = movement_hori(field, current_position[0], current_position[1], 1, current_orientation, correct_key)
+        current_position = movement_hori(field, current_position[0], current_position[
+                                         1], 1, current_orientation, correct_key)
     return current_position
 
 
