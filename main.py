@@ -11,6 +11,21 @@ def starting_coords():
     return [l, c]
 
 
+def food_coords_generator():
+    food_l = random.randrange(1, 30)
+    food_c = random.randrange(1, 30)
+    return [food_l, food_c]
+
+
+def food_placement(field, l, c):
+    while True:
+        if field[l][c] == 0:
+            field[l][c] = 901  # food counter will be 901
+            return field
+        else:
+            food_coords = food_coords_generator()
+
+
 def createfield():
     field = []
     first_line = []
@@ -42,6 +57,8 @@ def drawfield(field, snake_head):
         for column in range(len(field[line])):
             if field[line][column] == 0:
                 gamewindow.addstr("{0:^{1}}".format(" ", 2))
+            elif field[line][column] == 901:
+                gamewindow.addstr("{0:^{1}}".format("X", 2))
             elif type(field[line][column]) == int and field[line][column] < snake_head:
                 gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(1))
                 # gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
@@ -73,7 +90,7 @@ def snake_placement(field, l, c):
 def slither(field):
     for line in range(1, 31):
         for column in range(1, 31):
-            if field[line][column] != 0:
+            if field[line][column] != 0 and field[line][column] != 901:
                 field[line][column] -= 1
     return field
 
@@ -120,7 +137,7 @@ def movement_vert(field, l, c, direction, current_orientation, correct_key):
         field = slither(field)
         return [l_mod, c]
     else:
-        field[l + direction][c] = field[l][c] + 1  # places the head at its proper place
+        field[l + direction][c] = head + 1  # places the head at its proper place
         field = slither(field)
         return [l + direction, c]
 
@@ -133,7 +150,7 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
         field = slither(field)
         return [l, c_mod]
     else:
-        field[l][c + direction] = field[l][c] + 1  # places the head at its proper place
+        field[l][c + direction] = head + 1  # places the head at its proper place
         field = slither(field)
         return [l, c + direction]
 
@@ -206,6 +223,8 @@ def main(mainscreen):
 
     current_orientation = "down"
     field = createfield()
+    food_coords = food_coords_generator()
+    field = food_placement(field, food_coords[0], food_coords[1])
 
     current_position = starting_coords()
     snake_head = snake_placement(field, current_position[0], current_position[1])
