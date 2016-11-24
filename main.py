@@ -6,24 +6,40 @@ import os
 
 
 def starting_coords():
-    l = random.randrange(3, 28)
-    c = random.randrange(1, 30)
+    l = random.randrange(4, 27)
+    c = random.randrange(2, 30)
     return [l, c]
 
 
 def createfield():
     field = []
+    first_line = []
+    for i in range(30):
+        first_line.append("tb")
+
+    field.insert(0, first_line)
+
     for l in range(30):
         field.append([])
         for c in range(30):
             field[l].append(0)
+
+    for l in range(1, 30):
+        field[l].insert(0, "lb")
+        field[l].insert(-1, "rb")
+
+    last_line = []
+    for i in range(30):
+        last_line.append("bb")
+    field.append(last_line)
+
     return field
 
 
 def drawfield(field):
-    for line in range(len(field)):
+    for line in range(1, 30):
         gamewindow.addstr("\n")
-        for column in range(len(field[line])):
+        for column in range(1, 30):
             if field[line][column] == 0:
                 gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
             elif field[line][column] < 10:
@@ -46,11 +62,11 @@ def snake_placement(field, l, c):
     snakelength = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
     for i in range(len(snakelength)):
         field[l - i][c] = snakelength[i]
-    
+
 
 def slither(field):
-    for line in range(len(field)):
-        for column in range(len(field[line])):
+    for line in range(1, 30):
+        for column in range(1, 30):
             if field[line][column] != 0:
                 field[line][column] -= 1
     return field
@@ -72,6 +88,7 @@ def wall_check_vert(l, current_orientation, correct_key):
         return l
     return l
 
+
 def wall_check_hori(c, current_orientation, correct_key):
     if current_orientation == "up" or current_orientation == "down":
         if c == 0 and correct_key == curses.KEY_LEFT:
@@ -85,7 +102,7 @@ def wall_check_hori(c, current_orientation, correct_key):
         return c
     elif current_orientation == "left" and c == 0:
         c = 29
-        return c 
+        return c
     return c
 
 
@@ -109,13 +126,17 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
 
 def automove(field, current_position, current_orientation, correct_key):
     if current_orientation == "up":
-        current_position = movement_vert(field, current_position[0], current_position[1], -1, current_orientation, correct_key)
+        current_position = movement_vert(field, current_position[0], current_position[
+            1], -1, current_orientation, correct_key)
     elif current_orientation == "down":
-        current_position = movement_vert(field, current_position[0], current_position[1], 1, current_orientation, correct_key)
+        current_position = movement_vert(field, current_position[0], current_position[
+            1], 1, current_orientation, correct_key)
     elif current_orientation == "left":
-        current_position = movement_hori(field, current_position[0], current_position[1], -1, current_orientation, correct_key)
+        current_position = movement_hori(field, current_position[0], current_position[
+            1], -1, current_orientation, correct_key)
     elif current_orientation == "right":
-        current_position = movement_hori(field, current_position[0], current_position[1], 1, current_orientation, correct_key)
+        current_position = movement_hori(field, current_position[0], current_position[
+            1], 1, current_orientation, correct_key)
     return current_position
 
 
@@ -180,11 +201,8 @@ def main(mainscreen):
         menu_things(snake_list, menu)
         menu.clear()
         menu.refresh()
-        borderwindow.border()
-        borderwindow.refresh()
 
         while True:
-            # gamewindow.border()
             curses.cbreak()
             gamewindow.keypad(1)
             gamewindow.nodelay(1)
@@ -192,6 +210,7 @@ def main(mainscreen):
             correct_key = ""
 
             time.sleep(0.1)
+            print(field)
             key = gamewindow.getch()
             correct_key = key
             while True:
@@ -202,19 +221,19 @@ def main(mainscreen):
 
             if correct_key == curses.KEY_UP:
                 current_position = movement_vert(field, current_position[0], current_position[
-                                                 1], -1, current_orientation, correct_key)
+                    1], -1, current_orientation, correct_key)
                 current_orientation = "up"
             elif correct_key == curses.KEY_DOWN:
                 current_position = movement_vert(field, current_position[0], current_position[
-                                                 1], 1, current_orientation, correct_key)
+                    1], 1, current_orientation, correct_key)
                 current_orientation = "down"
             elif correct_key == curses.KEY_LEFT:
                 current_position = movement_hori(field, current_position[0], current_position[
-                                                 1], -1, current_orientation, correct_key)
+                    1], -1, current_orientation, correct_key)
                 current_orientation = "left"
             elif correct_key == curses.KEY_RIGHT:
                 current_position = movement_hori(field, current_position[0], current_position[
-                                                 1], 1, current_orientation, correct_key)
+                    1], 1, current_orientation, correct_key)
                 current_orientation = "right"
             else:
                 current_position = automove(field, current_position, current_orientation, correct_key)
@@ -230,6 +249,5 @@ def main(mainscreen):
 
 mainscreen = curses.initscr()
 menu = curses.newwin(50, 70, 6, 30)
-borderwindow = curses.newwin(33, 62, 5, 39)
 gamewindow = curses.newwin(32, 61, 6, 40)
 wrapper(main)
