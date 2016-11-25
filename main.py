@@ -255,19 +255,19 @@ def main(mainscreen):
                     break
                 correct_key = key
             # Controlling
-            if correct_key == curses.KEY_UP:
+            if correct_key == curses.KEY_UP and current_orientation != "down":
                 current_position = movement_vert(field, current_position[0], current_position[
                     1], -1, current_orientation, correct_key)
                 current_orientation = "up"
-            elif correct_key == curses.KEY_DOWN:
+            elif correct_key == curses.KEY_DOWN and current_orientation != "up":
                 current_position = movement_vert(field, current_position[0], current_position[
                     1], 1, current_orientation, correct_key)
                 current_orientation = "down"
-            elif correct_key == curses.KEY_LEFT:
+            elif correct_key == curses.KEY_LEFT and current_orientation != "right":
                 current_position = movement_hori(field, current_position[0], current_position[
                     1], -1, current_orientation, correct_key)
                 current_orientation = "left"
-            elif correct_key == curses.KEY_RIGHT:
+            elif correct_key == curses.KEY_RIGHT and current_orientation != "left":
                 current_position = movement_hori(field, current_position[0], current_position[
                     1], 1, current_orientation, correct_key)
                 current_orientation = "right"
