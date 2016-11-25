@@ -58,18 +58,14 @@ def drawfield(field, snake_head):
             if field[line][column] == 0:
                 gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] == 901:
-                gamewindow.addstr("{0:^{1}}".format("X", 2))
+                gamewindow.addstr("{0:^{1}}".format("F", 2))
             elif type(field[line][column]) == int and field[line][column] < snake_head:
-                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(1))
-                # gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
+                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(1))  # snake body
             elif field[line][column] == "tb" or field[line][column] == "lb" or field[line][column] == "bb" or field[line][column] == "rb":
-                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(4))
+                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(4))  # borders
             else:
-                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(2))
-                # gamewindow.addstr("{0:^{1}}".format(field[line][column], 2))
+                gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(2))  # snake head
             gamewindow.noutrefresh()
-
-    return snake_head
 
 
 def draw_snakehead():
@@ -169,6 +165,12 @@ def movement_vert(field, l, c, direction, current_orientation, correct_key):
         field[l_mod][c] = head + 1
         field = slither(field)
         return [l_mod, c]
+    elif field[l + direction][c] == 901:
+        field[l + direction][c] = head + 1
+        snakelength.insert(0, head + 1)
+        food_coords = food_coords_generator()
+        field = food_placement(field, food_coords[0], food_coords[1])
+        return [l + direction, c]
     else:
         field[l + direction][c] = head + 1  # places the head at its proper place
         field = slither(field)
@@ -182,6 +184,12 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
         field[l][c_mod] = head + 1
         field = slither(field)
         return [l, c_mod]
+    elif field[l][c + direction] == 901:
+        field[l][c + direction] = head + 1
+        snakelength.insert(0, head + 1)
+        food_coords = food_coords_generator()
+        field = food_placement(field, food_coords[0], food_coords[1])
+        return [l, c + direction]
     else:
         field[l][c + direction] = head + 1  # places the head at its proper place
         field = slither(field)
@@ -230,7 +238,7 @@ def main(mainscreen):
     field = food_placement(field, food_coords[0], food_coords[1])
 
     current_position = starting_coords()
-    snake_head = snake_placement(field, current_position[0], current_position[1])
+    snake_placement(field, current_position[0], current_position[1])
 
     starttime = time.time()
 
@@ -274,7 +282,7 @@ def main(mainscreen):
             else:
                 current_position = automove(field, current_position, current_orientation, correct_key)
             gamewindow.clear()
-            snake_head = drawfield(field, snake_head)
+            drawfield(field, snakelength[0])
             gamewindow.refresh()
     except IndexError:
         curses.endwin()
@@ -284,6 +292,7 @@ def main(mainscreen):
     curses.endwin()
 
 mainscreen = curses.initscr()
+snakelength = [3, 2, 1]
 menu = curses.newwin(50, 70, 6, 30)  # Create Menu window
 gamewindow = curses.newwin(40, 80, 5, 41)  # Create Game window
 wrapper(main)
