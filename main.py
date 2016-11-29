@@ -262,18 +262,19 @@ def menu_window(menu):
 
 
 def speed_increase(food_counter, speed, done_this_round):
-    if food_counter % 3 == 0 and done_this_round == 0:
-        speed -= 0.01
+    if food_counter % 10 == 0 and done_this_round == 0:
+        speed *= 0.95
         done_this_round = 1
-    elif food_counter % 3 != 0:
+    elif food_counter % 10 != 0:
         done_this_round = 0
     return [food_counter, speed, done_this_round]
 
 
 def draw_score_window():
     scorewindow.border()
-    scorewindow.addstr("Speed: %s" % speed)
-    scorewindow.addstr("Score: %s" % food_counter)
+    scorewindow.addstr("Speed: %s\n" % round(speed, 3))
+    scorewindow.addstr("Score: %s\n" % food_counter)
+    scorewindow.addstr("Snake length: %s" % food_counter)
 
 
 def main(mainscreen):
@@ -344,8 +345,8 @@ def main(mainscreen):
 
 
 snakelength = [3, 2, 1]
-food_counter = 0
-speed = 0.15
+food_counter = 3
+speed = 0.16
 mainscreen = curses.initscr()
 menu = curses.newwin(50, 70, 6, 30)  # Create Menu window
 scorewindow = curses.newwin(5, 64, 1, 41)  # Score window
