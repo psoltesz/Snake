@@ -7,7 +7,7 @@ import os
 
 def starting_coords():
     l = random.randrange(4, 27)
-    c = random.randrange(2, 30)
+    c = random.randrange(1, 30)
     return [l, c]
 
 
@@ -161,10 +161,17 @@ def wall_check_hori(c, current_orientation, correct_key):
 def movement_vert(field, l, c, direction, current_orientation, correct_key):
     head = field[l][c]
     l_mod = wall_check_vert(l, current_orientation, correct_key)
-    if l != l_mod:
-        field[l_mod][c] = head + 1
-        field = slither(field)
-        return [l_mod, c]
+    if l != l_mod:  # if a wall pass happens
+        if field[l_mod][c] == 901:  # if there is food at the edge of the field
+            field[l_mod][c] = head + 1
+            snakelength.insert(0, head + 1)
+            food_coords = food_coords_generator()
+            field = food_placement(field, food_coords[0], food_coords[1])
+            return [l_mod, c]
+        else:  # if there is no food at the edge
+            field[l_mod][c] = head + 1
+            field = slither(field)
+            return [l_mod, c]
     elif field[l + direction][c] == 901:
         field[l + direction][c] = head + 1
         snakelength.insert(0, head + 1)
@@ -181,13 +188,20 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
     head = field[l][c]
     c_mod = wall_check_hori(c, current_orientation, correct_key)
     if c != c_mod:
-        field[l][c_mod] = head + 1
-        field = slither(field)
-        return [l, c_mod]
+        if field[l][c_mod] == 901:
+            field[l][c_mod] = head + 1
+            snakelength.insert(0, head + 1)
+            food_coords = food_coords_generator()
+            field = food_placement(field, food_coords[0], food_coords[1])
+            return [l, c_mod]
+        else:
+            field[l][c_mod] = head + 1
+            field = slither(field)
+            return [l, c_mod]
     elif field[l][c + direction] == 901:
         field[l][c + direction] = head + 1
         snakelength.insert(0, head + 1)
-        food_coords = food_coords_generator()
+        food_coords = food_coords_generator()  # generating new food coords after picking up the previous unit
         field = food_placement(field, food_coords[0], food_coords[1])
         return [l, c + direction]
     else:
@@ -279,7 +293,7 @@ def main(mainscreen):
             gamewindow.nodelay(1)
             key = -1
             correct_key = ""
-            time.sleep(0.1)
+            time.sleep(0.05)
             key = gamewindow.getch()
             correct_key = key
             # Get the latest key from the user
