@@ -7,7 +7,7 @@ import os
 
 def starting_coords():
     l = random.randrange(4, 27)
-    c = random.randrange(2, 30)
+    c = random.randrange(1, 30)
     return [l, c]
 
 
@@ -56,7 +56,7 @@ def drawfield(field, snake_head):
         gamewindow.addstr("\n")
         for column in range(len(field[line])):
             if field[line][column] == 0:
-                gamewindow.addstr("{0:^{1}}".format(" ", 2))
+                gamewindow.addstr("{0:^{1}}".format("0", 2))
             elif field[line][column] == 901:
                 gamewindow.addstr("{0:^{1}}".format("F", 2))
             elif type(field[line][column]) == int and field[line][column] < snake_head:
@@ -161,10 +161,17 @@ def wall_check_hori(c, current_orientation, correct_key):
 def movement_vert(field, l, c, direction, current_orientation, correct_key):
     head = field[l][c]
     l_mod = wall_check_vert(l, current_orientation, correct_key)
-    if l != l_mod:
-        field[l_mod][c] = head + 1
-        field = slither(field)
-        return [l_mod, c]
+    if l != l_mod:  # if a wall pass happens
+        if field[l_mod][c] == 901:  # if there is food at the edge of the field
+            field[l_mod][c] = head + 1
+            snakelength.insert(0, head + 1)
+            food_coords = food_coords_generator()
+            field = food_placement(field, food_coords[0], food_coords[1])
+            return [l_mod, c]
+        else:  # if there is no food at the edge
+            field[l_mod][c] = head + 1
+            field = slither(field)
+            return [l_mod, c]
     elif field[l + direction][c] == 901:
         field[l + direction][c] = head + 1
         snakelength.insert(0, head + 1)
@@ -181,13 +188,20 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
     head = field[l][c]
     c_mod = wall_check_hori(c, current_orientation, correct_key)
     if c != c_mod:
-        field[l][c_mod] = head + 1
-        field = slither(field)
-        return [l, c_mod]
+        if field[l][c_mod] == 901:
+            field[l][c_mod] = head + 1
+            snakelength.insert(0, head + 1)
+            food_coords = food_coords_generator()
+            field = food_placement(field, food_coords[0], food_coords[1])
+            return [l, c_mod]
+        else:
+            field[l][c_mod] = head + 1
+            field = slither(field)
+            return [l, c_mod]
     elif field[l][c + direction] == 901:
         field[l][c + direction] = head + 1
         snakelength.insert(0, head + 1)
-        food_coords = food_coords_generator()
+        food_coords = food_coords_generator()  # generating new food coords after picking up the previous unit
         field = food_placement(field, food_coords[0], food_coords[1])
         return [l, c + direction]
     else:
@@ -253,7 +267,7 @@ def main(mainscreen):
             gamewindow.nodelay(1)
             key = -1
             correct_key = ""
-            time.sleep(0.1)
+            time.sleep(0.05)
             key = gamewindow.getch()
             correct_key = key
             # Get the latest key from the user
@@ -263,19 +277,19 @@ def main(mainscreen):
                     break
                 correct_key = key
             # Controls
-            if correct_key == curses.KEY_UP:
+            if correct_key == curses.KEY_UP and current_orientation != "down":
                 current_position = movement_vert(field, current_position[0], current_position[
                     1], -1, current_orientation, correct_key)
                 current_orientation = "up"
-            elif correct_key == curses.KEY_DOWN:
+            elif correct_key == curses.KEY_DOWN and current_orientation != "up":
                 current_position = movement_vert(field, current_position[0], current_position[
                     1], 1, current_orientation, correct_key)
                 current_orientation = "down"
-            elif correct_key == curses.KEY_LEFT:
+            elif correct_key == curses.KEY_LEFT and current_orientation != "right":
                 current_position = movement_hori(field, current_position[0], current_position[
                     1], -1, current_orientation, correct_key)
                 current_orientation = "left"
-            elif correct_key == curses.KEY_RIGHT:
+            elif correct_key == curses.KEY_RIGHT and current_orientation != "left":
                 current_position = movement_hori(field, current_position[0], current_position[
                     1], 1, current_orientation, correct_key)
                 current_orientation = "right"
