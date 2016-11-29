@@ -11,17 +11,6 @@ def starting_coords():
     return [l, c]
 
 
-def food_placement(field):
-    while True:
-        l = random.randrange(1, 30)
-        c = random.randrange(1, 30)
-        if field[l][c] == 0:
-            field[l][c] = 901  # food counter will be 901
-            return field
-        else:
-            continue
-
-
 def createfield():
     field = []
     first_line = []
@@ -55,6 +44,14 @@ def drawfield(field, snake_head):
                 gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] == 901:
                 gamewindow.addstr("{0:^{1}}".format("🍍", 2), color_pair(3) + A_BOLD)
+            elif field[line][column] == 902:
+                gamewindow.addstr("{0:^{1}}".format("🍌", 2), color_pair(3) + A_BOLD)
+            elif field[line][column] == 903:
+                gamewindow.addstr("{0:^{1}}".format("🍎", 2), color_pair(3) + A_BOLD)
+            elif field[line][column] == 904:
+                gamewindow.addstr("{0:^{1}}".format("🍒", 2), color_pair(3) + A_BOLD)
+            elif field[line][column] == 905:
+                gamewindow.addstr("{0:^{1}}".format("🐹", 2), color_pair(3) + A_BOLD)
             elif type(field[line][column]) == int and field[line][column] < snake_head:
                 gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(1))  # snake body
             elif field[line][column] == "tb" or field[line][column] == "lb" or field[line][column] == "bb" or field[line][column] == "rb":
@@ -92,7 +89,7 @@ def draw_snakehead():
                   '''                             """"* RL       d>''',
                   '''                                    "$u.   .$''',
                   '''                                      ^"*bo@"''',
-                  ''' \n ''',
+                  "\n",
                   '''                              Press ENTER to start!''']
     return snake_list
 
@@ -113,11 +110,40 @@ def snake_placement(field, l, c):
 
 
 def slither(field):
+    food = [901, 902, 903, 904, 905]
     for line in range(1, 31):
         for column in range(1, 31):
-            if field[line][column] != 0 and field[line][column] != 901:
+            if field[line][column] != 0 and field[line][column] not in food:
                 field[line][column] -= 1
     return field
+
+
+def food_placement(field):
+    while True:
+        l = random.randrange(1, 30)
+        c = random.randrange(1, 30)
+        if field[l][c] == 0:
+            food = random.randrange(901, 906)
+            field[l][c] = food  # food counter will be a random unit between 901 and 905
+            return field
+        else:
+            continue
+
+
+def hungerbar_full():
+    hungerbar = [0] * 40
+    return hungerbar
+
+
+def hunger_decrease(hungerbar):
+    del hungerbar[0]
+    if len(hungerbar) == 0:
+        while True:
+            gamewindow.clear()
+            gameover.border(0)
+            gameover.addstr(19, 30, "GAME OVER", color_pair(5) + A_BOLD)
+            gameover.refresh()
+    return hungerbar
 
 
 def wall_check_vert(l, current_orientation, correct_key):
@@ -154,26 +180,63 @@ def wall_check_hori(c, current_orientation, correct_key):
     return c
 
 
+def score_increase_vert(field, l_mod, c):
+    if field[l_mod][c] == 901:
+        return 50
+    elif field[l_mod][c] == 902:
+        return 100
+    elif field[l_mod][c] == 903:
+        return 150
+    elif field[l_mod][c] == 904:
+        return 200
+    elif field[l_mod][c] == 905:
+        return 250
+
+
+def score_increase_hori(field, l, c_mod):
+    if field[l][c_mod] == 901:
+        return 50
+    elif field[l][c_mod] == 902:
+        return 100
+    elif field[l][c_mod] == 903:
+        return 150
+    elif field[l][c_mod] == 904:
+        return 200
+    elif field[l][c_mod] == 905:
+        return 250
+
+
 def movement_vert(field, l, c, direction, current_orientation, correct_key):
     global food_counter
+    global score
+    global hunger
+    food = [901, 902, 903, 904, 905]
     head = field[l][c]
     l_mod = wall_check_vert(l, current_orientation, correct_key)
     if l != l_mod:  # if a wall pass happens
-        if field[l_mod][c] == 901:  # if there is food at the edge of the field
+        if field[l_mod][c] in food:  # if there is food at the edge of the field
+            # pulling the score amount from the score_increase function
+            score_increase = score_increase_vert(field, l_mod, c)
+            score = score + score_increase  # setting the score to the desired amount
             field[l_mod][c] = head + 1
             snakelength.insert(0, head + 1)
             field = food_placement(field)
             food_counter += 1
+            hunger = hungerbar_full()
             return [l_mod, c]
         else:  # if there is no food at the edge
             field[l_mod][c] = head + 1
             field = slither(field)
             return [l_mod, c]
-    elif field[l + direction][c] == 901:
+    elif field[l + direction][c] in food:
+        # pulling the score amount from the score_increase function
+        score_increase = score_increase_vert(field, l + direction, c)
+        score = score + score_increase  # setting the score to the desired amount
         field[l + direction][c] = head + 1
         snakelength.insert(0, head + 1)
         field = food_placement(field)
         food_counter += 1
+        hunger = hungerbar_full()
         return [l + direction, c]
     else:
         field[l + direction][c] = head + 1  # places the head at its proper place
@@ -183,24 +246,35 @@ def movement_vert(field, l, c, direction, current_orientation, correct_key):
 
 def movement_hori(field, l, c, direction, current_orientation, correct_key):
     global food_counter
+    global score
+    global hunger
+    food = [901, 902, 903, 904, 905]
     head = field[l][c]
     c_mod = wall_check_hori(c, current_orientation, correct_key)
     if c != c_mod:
-        if field[l][c_mod] == 901:
+        if field[l][c_mod] in food:
+            # pulling the score amount from the score_increase function
+            score_increase = score_increase_hori(field, l, c_mod)
+            score = score + score_increase  # setting the score to the desired amount
             field[l][c_mod] = head + 1
             snakelength.insert(0, head + 1)
             field = food_placement(field)
             food_counter += 1
+            hunger = hungerbar_full()
             return [l, c_mod]
         else:
             field[l][c_mod] = head + 1
             field = slither(field)
             return [l, c_mod]
-    elif field[l][c + direction] == 901:
+    elif field[l][c + direction] in food:
+        # pulling the score amount from the score_increase function
+        score_increase = score_increase_vert(field, l, c + direction)
+        score = score + score_increase  # setting the score to the desired amount
         field[l][c + direction] = head + 1
         snakelength.insert(0, head + 1)
         field = food_placement(field)
         food_counter += 1
+        hunger = hungerbar_full()
         return [l, c + direction]
     else:
         field[l][c + direction] = head + 1  # places the head at its proper place
@@ -270,16 +344,20 @@ def speed_increase(food_counter, speed, done_this_round):
     return [food_counter, speed, done_this_round]
 
 
-def draw_score_window():
+def draw_score_window(hunger):
     scorewindow.border()
-    scorewindow.addstr("Speed: %s\n" % round(speed, 3))
-    scorewindow.addstr("Score: %s\n" % food_counter)
-    scorewindow.addstr("Snake length: %s" % food_counter)
+    #scorewindow.addstr("Speed: %s\n" % round(speed, 3))
+    scorewindow.addstr(1, 1, "Score: %s\n" % score, color_pair(5) + A_BOLD)
+    scorewindow.addstr(2, 1, "Length: %s\n" % food_counter, color_pair(5) + A_BOLD)
+    scorewindow.addstr(3, 1, "Hunger: ", color_pair(5) + A_BOLD)
+    for item in range(len(hunger)):
+        scorewindow.addstr("{0:{1}}".format("■", 1), color_pair(5) + A_BOLD)
 
 
 def main(mainscreen):
     global food_counter
     global speed
+    global hunger
     # Define colors
     start_color()
     use_default_colors()
@@ -287,6 +365,7 @@ def main(mainscreen):
     init_pair(2, COLOR_GREEN, -1)
     init_pair(3, COLOR_YELLOW, -1)
     init_pair(4, COLOR_BLACK, COLOR_WHITE)
+    init_pair(5, COLOR_WHITE, -1)
 
     current_orientation = "down"
     field = createfield()
@@ -327,7 +406,7 @@ def main(mainscreen):
             current_orientation = controls_return[3]
             gamewindow.clear()
             drawfield(field, snakelength[0])
-            draw_score_window()
+            draw_score_window(hunger)
             gamewindow.refresh()
             scorewindow.refresh()
             scorewindow.clear()
@@ -336,6 +415,7 @@ def main(mainscreen):
             food_counter = result[0]
             speed = result[1]
             done_this_round = result[2]
+            hunger = hunger_decrease(hunger)
     except IndexError:
         curses.endwin()
         print(current_orientation, current_position)
@@ -346,9 +426,12 @@ def main(mainscreen):
 
 snakelength = [3, 2, 1]
 food_counter = 3
+score = 0
 speed = 0.16
+hunger = hungerbar_full()
 mainscreen = curses.initscr()
 menu = curses.newwin(50, 70, 6, 30)  # Create Menu window
 scorewindow = curses.newwin(5, 64, 1, 41)  # Score window
 gamewindow = curses.newwin(40, 80, 5, 41)  # Create Game window
+gameover = curses.newwin(40, 70, 1, 40)
 wrapper(main)
