@@ -56,7 +56,7 @@ def drawfield(field, snake_head):
         gamewindow.addstr("\n")
         for column in range(len(field[line])):
             if field[line][column] == 0:
-                gamewindow.addstr("{0:^{1}}".format("0", 2))
+                gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] == 901:
                 gamewindow.addstr("{0:^{1}}".format("F", 2))
             elif type(field[line][column]) == int and field[line][column] < snake_head:
