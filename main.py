@@ -56,9 +56,9 @@ def drawfield(field, snake_head):
         gamewindow.addstr("\n")
         for column in range(len(field[line])):
             if field[line][column] == 0:
-                gamewindow.addstr("{0:^{1}}".format("0", 2))
+                gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] == 901:
-                gamewindow.addstr("{0:^{1}}".format("F", 2))
+                gamewindow.addstr("{0:^{1}}".format("🍍", 2), color_pair(3) + A_BOLD)
             elif type(field[line][column]) == int and field[line][column] < snake_head:
                 gamewindow.addstr("{0:^{1}}".format("■", 2), color_pair(1))  # snake body
             elif field[line][column] == "tb" or field[line][column] == "lb" or field[line][column] == "bb" or field[line][column] == "rb":
@@ -269,7 +269,7 @@ def main(mainscreen):
     use_default_colors()
     init_pair(1, COLOR_CYAN, -1)
     init_pair(2, COLOR_GREEN, -1)
-    init_pair(3, COLOR_GREEN, -1)
+    init_pair(3, COLOR_YELLOW, -1)
     init_pair(4, COLOR_BLACK, COLOR_WHITE)
 
     current_orientation = "down"
@@ -293,7 +293,7 @@ def main(mainscreen):
             gamewindow.nodelay(1)
             key = -1
             correct_key = ""
-            time.sleep(0.05)
+            time.sleep(0.15)
             key = gamewindow.getch()
             correct_key = key
             # Get the latest key from the user
