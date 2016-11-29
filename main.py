@@ -226,6 +226,32 @@ def automove(field, current_position, current_orientation, correct_key):
     return current_position
 
 
+def controls(field, correct_key, current_position, current_orientation):
+    if correct_key == curses.KEY_UP and current_orientation != "down":
+        current_position = movement_vert(field, current_position[0], current_position[
+            1], -1, current_orientation, correct_key)
+        current_orientation = "up"
+        return [field, correct_key, current_position, current_orientation]
+    elif correct_key == curses.KEY_DOWN and current_orientation != "up":
+        current_position = movement_vert(field, current_position[0], current_position[
+            1], 1, current_orientation, correct_key)
+        current_orientation = "down"
+        return [field, correct_key, current_position, current_orientation]
+    elif correct_key == curses.KEY_LEFT and current_orientation != "right":
+        current_position = movement_hori(field, current_position[0], current_position[
+            1], -1, current_orientation, correct_key)
+        current_orientation = "left"
+        return [field, correct_key, current_position, current_orientation]
+    elif correct_key == curses.KEY_RIGHT and current_orientation != "left":
+        current_position = movement_hori(field, current_position[0], current_position[
+            1], 1, current_orientation, correct_key)
+        current_orientation = "right"
+        return [field, correct_key, current_position, current_orientation]
+    else:
+        current_position = automove(field, current_position, current_orientation, correct_key)
+        return [field, correct_key, current_position, current_orientation]
+
+
 def menu_window(menu):
     curses.cbreak()
     menu.keypad(1)
@@ -276,25 +302,12 @@ def main(mainscreen):
                 if key == -1:
                     break
                 correct_key = key
-            # Controls
-            if correct_key == curses.KEY_UP and current_orientation != "down":
-                current_position = movement_vert(field, current_position[0], current_position[
-                    1], -1, current_orientation, correct_key)
-                current_orientation = "up"
-            elif correct_key == curses.KEY_DOWN and current_orientation != "up":
-                current_position = movement_vert(field, current_position[0], current_position[
-                    1], 1, current_orientation, correct_key)
-                current_orientation = "down"
-            elif correct_key == curses.KEY_LEFT and current_orientation != "right":
-                current_position = movement_hori(field, current_position[0], current_position[
-                    1], -1, current_orientation, correct_key)
-                current_orientation = "left"
-            elif correct_key == curses.KEY_RIGHT and current_orientation != "left":
-                current_position = movement_hori(field, current_position[0], current_position[
-                    1], 1, current_orientation, correct_key)
-                current_orientation = "right"
-            else:
-                current_position = automove(field, current_position, current_orientation, correct_key)
+            # Controlling
+            controls_return = controls(field, correct_key, current_position, current_orientation)
+            field = controls_return[0]
+            correct_key = controls_return[1]
+            current_position = controls_return[2]
+            current_orientation = controls_return[3]
             gamewindow.clear()
             drawfield(field, snakelength[0])
             gamewindow.refresh()
