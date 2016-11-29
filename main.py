@@ -17,13 +17,15 @@ def food_coords_generator():
     return [food_l, food_c]
 
 
-def food_placement(field, l, c):
+def food_placement(field):
     while True:
+        l = random.randrange(1, 30)
+        c = random.randrange(1, 30)
         if field[l][c] == 0:
             field[l][c] = 901  # food counter will be 901
             return field
         else:
-            food_coords = food_coords_generator()
+            continue
 
 
 def createfield():
@@ -165,8 +167,7 @@ def movement_vert(field, l, c, direction, current_orientation, correct_key):
         if field[l_mod][c] == 901:  # if there is food at the edge of the field
             field[l_mod][c] = head + 1
             snakelength.insert(0, head + 1)
-            food_coords = food_coords_generator()
-            field = food_placement(field, food_coords[0], food_coords[1])
+            field = food_placement(field)
             return [l_mod, c]
         else:  # if there is no food at the edge
             field[l_mod][c] = head + 1
@@ -175,8 +176,7 @@ def movement_vert(field, l, c, direction, current_orientation, correct_key):
     elif field[l + direction][c] == 901:
         field[l + direction][c] = head + 1
         snakelength.insert(0, head + 1)
-        food_coords = food_coords_generator()
-        field = food_placement(field, food_coords[0], food_coords[1])
+        field = food_placement(field)
         return [l + direction, c]
     else:
         field[l + direction][c] = head + 1  # places the head at its proper place
@@ -191,8 +191,7 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
         if field[l][c_mod] == 901:
             field[l][c_mod] = head + 1
             snakelength.insert(0, head + 1)
-            food_coords = food_coords_generator()
-            field = food_placement(field, food_coords[0], food_coords[1])
+            field = food_placement(field)
             return [l, c_mod]
         else:
             field[l][c_mod] = head + 1
@@ -201,8 +200,7 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
     elif field[l][c + direction] == 901:
         field[l][c + direction] = head + 1
         snakelength.insert(0, head + 1)
-        food_coords = food_coords_generator()  # generating new food coords after picking up the previous unit
-        field = food_placement(field, food_coords[0], food_coords[1])
+        field = food_placement(field)
         return [l, c + direction]
     else:
         field[l][c + direction] = head + 1  # places the head at its proper place
@@ -274,8 +272,8 @@ def main(mainscreen):
 
     current_orientation = "down"
     field = createfield()
-    food_coords = food_coords_generator()
-    field = food_placement(field, food_coords[0], food_coords[1])
+    #food_coords = food_coords_generator()
+    field = food_placement(field)
 
     current_position = starting_coords()
     snake_placement(field, current_position[0], current_position[1])
