@@ -56,7 +56,7 @@ def drawfield(field, snake_head):
         gamewindow.addstr("\n")
         for column in range(len(field[line])):
             if field[line][column] == 0:
-                gamewindow.addstr("{0:^{1}}".format("0", 2))
+                gamewindow.addstr("{0:^{1}}".format(" ", 2))
             elif field[line][column] == 901:
                 gamewindow.addstr("{0:^{1}}".format("F", 2))
             elif type(field[line][column]) == int and field[line][column] < snake_head:
@@ -159,6 +159,7 @@ def wall_check_hori(c, current_orientation, correct_key):
 
 
 def movement_vert(field, l, c, direction, current_orientation, correct_key):
+    global food_counter
     head = field[l][c]
     l_mod = wall_check_vert(l, current_orientation, correct_key)
     if l != l_mod:  # if a wall pass happens
@@ -167,6 +168,7 @@ def movement_vert(field, l, c, direction, current_orientation, correct_key):
             snakelength.insert(0, head + 1)
             food_coords = food_coords_generator()
             field = food_placement(field, food_coords[0], food_coords[1])
+            food_counter += 1
             return [l_mod, c]
         else:  # if there is no food at the edge
             field[l_mod][c] = head + 1
@@ -177,6 +179,7 @@ def movement_vert(field, l, c, direction, current_orientation, correct_key):
         snakelength.insert(0, head + 1)
         food_coords = food_coords_generator()
         field = food_placement(field, food_coords[0], food_coords[1])
+        food_counter += 1
         return [l + direction, c]
     else:
         field[l + direction][c] = head + 1  # places the head at its proper place
@@ -185,6 +188,7 @@ def movement_vert(field, l, c, direction, current_orientation, correct_key):
 
 
 def movement_hori(field, l, c, direction, current_orientation, correct_key):
+    global food_counter
     head = field[l][c]
     c_mod = wall_check_hori(c, current_orientation, correct_key)
     if c != c_mod:
@@ -193,6 +197,7 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
             snakelength.insert(0, head + 1)
             food_coords = food_coords_generator()
             field = food_placement(field, food_coords[0], food_coords[1])
+            food_counter += 1
             return [l, c_mod]
         else:
             field[l][c_mod] = head + 1
@@ -203,6 +208,7 @@ def movement_hori(field, l, c, direction, current_orientation, correct_key):
         snakelength.insert(0, head + 1)
         food_coords = food_coords_generator()  # generating new food coords after picking up the previous unit
         field = food_placement(field, food_coords[0], food_coords[1])
+        food_counter += 1
         return [l, c + direction]
     else:
         field[l][c + direction] = head + 1  # places the head at its proper place
@@ -263,7 +269,24 @@ def menu_window(menu):
         menu = curses.endwin()
 
 
+def speed_increase(food_counter, speed, done_this_round):
+    if food_counter % 3 == 0 and done_this_round == 0:
+        speed -= 0.01
+        done_this_round = 1
+    elif food_counter % 3 != 0:
+        done_this_round = 0
+    return [food_counter, speed, done_this_round]
+
+
+def draw_score_window():
+    scorewindow.border()
+    scorewindow.addstr("Speed: %s" % speed)
+    scorewindow.addstr("Score: %s" % food_counter)
+
+
 def main(mainscreen):
+    global food_counter
+    global speed
     # Define colors
     start_color()
     use_default_colors()
@@ -276,6 +299,7 @@ def main(mainscreen):
     field = createfield()
     food_coords = food_coords_generator()
     field = food_placement(field, food_coords[0], food_coords[1])
+    done_this_round = 0
 
     current_position = starting_coords()
     snake_placement(field, current_position[0], current_position[1])
@@ -287,13 +311,14 @@ def main(mainscreen):
         menu_window(menu)
         menu.clear()
         menu.refresh()
+
         while True:
             curses.cbreak()
             gamewindow.keypad(1)
             gamewindow.nodelay(1)
             key = -1
             correct_key = ""
-            time.sleep(0.05)
+            time.sleep(speed)
             key = gamewindow.getch()
             correct_key = key
             # Get the latest key from the user
@@ -310,7 +335,15 @@ def main(mainscreen):
             current_orientation = controls_return[3]
             gamewindow.clear()
             drawfield(field, snakelength[0])
+            draw_score_window()
             gamewindow.refresh()
+            scorewindow.refresh()
+            scorewindow.clear()
+
+            result = speed_increase(food_counter, speed, done_this_round)
+            food_counter = result[0]
+            speed = result[1]
+            done_this_round = result[2]
     except IndexError:
         curses.endwin()
         print(current_orientation, current_position)
@@ -318,8 +351,12 @@ def main(mainscreen):
     mainscreen.refresh()
     curses.endwin()
 
-mainscreen = curses.initscr()
+
 snakelength = [3, 2, 1]
+food_counter = 0
+speed = 0.15
+mainscreen = curses.initscr()
 menu = curses.newwin(50, 70, 6, 30)  # Create Menu window
+scorewindow = curses.newwin(5, 64, 1, 41)  # Score window
 gamewindow = curses.newwin(40, 80, 5, 41)  # Create Game window
 wrapper(main)
